@@ -10,8 +10,12 @@ app.use(express.json()); // Use express.json() middleware to parse JSON request 
 app.use(express.urlencoded({ extended: true })); // Use express.urlencoded() middleware to parse URL-encoded request bodies
 // Define a simple route for the root URL
 app.get("/", (req, res) => {
-  res.send("Welcome to the AI Chatbot Code Challenge API!");
+  res.json({ message: "Welcome to the AI Chatbot Code Challenge API!" });
 });
+// Routes
+import  authRoutes  from "./routes/auth.routes.js"; // Importing authentication routes
+app.use("/api/auth", authRoutes); // Use the authentication routes under the /api/auth
+
 // listen on the specified port
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
