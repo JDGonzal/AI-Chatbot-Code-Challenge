@@ -55,4 +55,115 @@ export default app; // Export the app instance for testing or further configurat
 10. For a simple test go to any browser and write this _URL_: `http://localhost:3000/`
 
 
+## 2. Adding Auth Route
+
+1. Starting with create a file **`routes/auth.routes.js`**, importing the `express`, creating the _const_ `authRoutes`, with two mock routes, and the export the _const_:
+```js
+import express from "express";
+const authRoutes = express.Router(); // Create a new router instance
+
+// Define a route for user registration
+authRoutes.post("/register", async (req, res)=>{});
+// Define a route for user login
+authRoutes.post("/login", async (req, res)=>{});
+
+// Export the router to be used in the main app
+export default authRoutes;
+```
+2. Create a _model_ file with this name **`models/user.model.js`**, to emulate the data:
+```js
+// It will better to use an array or a database for user management.
+export const User = [
+  {
+    username: "Admin",
+    password: "$2b$10$Vr5C5oMmDKZPxDSq/aXQvOZuhIXot3Jtagdro8BO/8g/TIeJcqDUS",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    username: "User",
+    password: "$2b$10$E/S15HNMPLmRoWES9KsHN.CBofM3XwLBa9JjWGN/vyfPslDZMflZS",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+```
+3. Creating a _controller_ file with the name **`controllers/auth.controller.js`**, importing the _model_ `User` and `bcrypt`, then to add two _functions_ with the `POST` process to register a new user, and to log in a user:
+```js
+import { User } from "../models/user.model.js";
+import bcrypt from "bcryptjs"; // Import bcrypt for password hashing
+
+// Function to register a new user
+export const registerUser = async (req, res) => {
+  try {
+    const { username, password } = req.body; // Extract username and password from request body
+    const user = await User.find((user) => user.username == username); // Find user by username
+    if (!user) {
+      if (username.length > 10) {
+        return res
+          .status(400)
+          .json({ error: "Username must be less than 10 characters" }); // Handle username length
+      }
+      if (password.length > 20) {
+        return res
+          .status(400)
+          .json({ error: "Password must be less than 20 characters" }); // Handle username length
+      }
+      const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with bcrypt
+      const newUser = {
+        username,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }; // Create a new user instance
+      console.log("New user created:", newUser); // Log the new user for debugging
+      // Save the new user to the User array (or database)
+      User.push(newUser); // Add the new user to the User array
+      console.log("User registered:"); // Log the new user for debugging
+      console.table(User); // Display the User array in a table format
+      res.status(201).json({ message: "User registered successfully" }); // Respond with success message
+    } else {
+      res.status(400).json({ error: "Username already exists" }); // Handle duplicate username
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error registering user" }); // Handle errors
+    console.error(error); // Log the error for debugging
+  }
+};
+// Function to log in a user
+export const loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body; // Extract username and password from request body
+    const user = await User.find((user) => user.username == username); // Find user by username
+    if (!user) {
+      return res.status(404).json({ error: "User not found" }); // Handle user not found
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const isPasswordValid = await bcrypt.compare(password, user.password); // Compare provided password with hashed password
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid password" }); // Handle invalid password
+    }
+    res.status(200).json({ message: "Login successful" }); // Respond with success message
+  } catch (error) {
+    res.status(500).json({ error: "Error logging in user" }); // Handle errors
+    console.error(error); // Log the error for debugging
+  }
+};
+```
+4. Then back to the **`auth.routes.js`** file, to import `registerUser`, and `loginUser`, to use in each route as _post_:
+```js
+import express from "express";
+import { registerUser, loginUser } from "../controllers/auth.controller.js";
+const authRoutes = express.Router(); // Create a new router instance
+
+// Define a route for user registration
+authRoutes.post("/register", registerUser);
+// Define a route for user login
+authRoutes.post("/login", loginUser);
+
+// Export the router to be used in the main app
+export default authRoutes;
+```
+5. Finally, this is a test of each `POST` request: </br> ![auth/register](../images/2025-07-27_161511.png "auth/register") </br> ![auth/login](../images/2025-07-27_161550.png "auth/login")
+
 
