@@ -1,0 +1,31 @@
+{
+  "name": "ai-chatbot-code-challenge",
+  "version": "1.0.0",
+  "description": "[AI_Chatbot_Code_Challenge(20250723)](\r https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/edit?tab=t.0)",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JDGonzal/AI-Chatbot-Code-Challenge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JDGonzal/AI-Chatbot-Code-Challenge/issues"
+  },
+  "homepage": "https://github.com/JDGonzal/AI-Chatbot-Code-Challenge#readme",
+  "dependencies": {
+    "bcryptjs": "3.0.2",
+    "cors": "2.8.5",
+    "dotenv": "17.2.1",
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "3.1.10"
+  }
+}
