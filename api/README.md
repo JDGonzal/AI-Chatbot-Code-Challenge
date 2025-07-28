@@ -167,3 +167,125 @@ export default authRoutes;
 5. Finally, this is a test of each `POST` request: </br> ![auth/register](../images/2025-07-27_161511.png "auth/register") </br> ![auth/login](../images/2025-07-27_161550.png "auth/login")
 
 
+
+## 3. Adding Chat Route
+
+1. First we need to get a `jws` _token_, then we will run in a `TERMINAL` this command, or : </br>`npm install jsonwebtoken -E` </br> or </br> `pnpm add jsonwebtoken -E`
+2. Add a new value in the **`.env`** file with `AUTH_SEED=` and any mix of numbers and letters next to it.
+3. In the **`auth.controller.js`** file, import this new library: </br> `import jwt from "jsonwebtoken";`
+4. In the function `loginUser()` , We get the in `jws` format for one hour, to use in the chat request:
+```js
+    const token = jwt.sign(
+      { username: user.username }, // Username as payload
+      process.env.AUTH_SEED, // Secret seed from environment variables
+      {
+        expiresIn: "1h", // Token expiration time
+      }
+    ); // Generate a JWT token
+```
+5. Lets go to create a _route_ file with the name **`chat.route.js`**.
+6. Same for the _controller_ wiht the name **`chat.controller.js`**.
+7. And a _model_ with the name **`chat.model.js`**, with this basic code:
+```js
+// It will better to use an array or a database for user management.
+export const Chat = [
+  {
+    title: "First Text",
+    text: `Lorem ipsum dolor sit amet, consectetur adipiscing 
+    ...`,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    title: "Second Text",
+    text: `Fusce mollis sapien at mi iaculis, sit amet 
+    ...`,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+```
+8. Let's to complete the **`chat.controller.js`**, whit this code:
+```js
+import { User } from "../models/user.model.js";
+import { Chat } from "../models/chat.model.js";
+
+// Function to register a new user
+export const canAccess = async (req, res) => {
+  try {
+    const { username, token } = req.body; // Extract username and password from request body
+    const user = await User.find((user) => user.username == username); // Find user by username
+    if (user) {
+      console.log("Testing with middleware:"); // Log the new user for debugging
+      res
+        .status(201)
+        .json({ message: "The user can access the chat", chat: Chat }); // Respond with success message
+    } else {
+      res.status(400).json({ error: "Username doesn't exists" }); // Handle duplicate username
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error testing Access" }); // Handle errors
+    console.error(error); // Log the error for debugging
+  }
+};
+```
+9. Complete the code in **`chat.route.js`** file:
+```js
+import express from "express";
+import { canAccess } from "../controllers/chat.controller.js";
+
+const chatRoutes = express.Router(); // Create a new router instance
+
+// Just check if the user can access the chat
+chatRoutes.get("/can-access", canAccess);
+
+// Export the router to be used in the main app
+export default chatRoutes;
+```
+10. Add this route in the **`server.js`** file:
+```js
+import chatRoutes from "./routes/chat.route.js"; // Importing chat routes
+app.use("/api/chat", chatRoutes); // Use the chat routes under the /api/chat
+```
+11. Create the **`middleware/auth.js`** file, whit this code to validate the user keeps token getting by `(POST)auth/login`:
+```js
+import jwt from "jsonwebtoken"; // Importing jsonwebtoken for token verification
+
+// Middleware to authenticate requests
+export const auth = (req, res, next) => {
+  // Get the token from the Authorization header
+  const token = req.headers["x-auth-token"];
+  // If no token, return unauthorized
+  if (!token) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  // Verify the token using the secret seed
+  jwt.verify(token, process.env.AUTH_SEED, (err, decoded) => {
+    if (err) {
+      console.error("Token verification error:", err);
+      // If verification fails, return forbidden
+      return res.status(403).json({ error: "Failed to authenticate token" });
+    }
+    req.user = decoded; // Attach the decoded user information to the request object
+    next(); // Proceed to the next middleware or route handler
+  });
+};
+```
+12. The implementacion is in the **`chat.route.js`** file:
+```js
+import express from "express";
+import { canAccess } from "../controllers/chat.controller.js";
+import { auth } from "../middleware/auth.js";
+
+const chatRoutes = express.Router(); // Create a new router instance
+
+// Just check if the user can access the chat
+chatRoutes.get("/can-access", [auth], canAccess);
+
+// Export the router to be used in the main app
+export default chatRoutes;
+```
+13. It is the answer when the `token` is valid: </br> ![can-access with valid Token](../images/2025-07-27_192905.png "can-access with valid Token")
+14. And this is the answer when the `token` has expired: </br> ![can-access with Token expired](../images/2025-07-27_195116.png "can-access with Token expired")
+

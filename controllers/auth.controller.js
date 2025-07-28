@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs"; // Import bcrypt for password hashing
+import jwt from "jsonwebtoken"; // Import jsonwebtoken for token generation
 
 // Function to register a new user
 export const registerUser = async (req, res) => {
@@ -7,15 +8,15 @@ export const registerUser = async (req, res) => {
     const { username, password } = req.body; // Extract username and password from request body
     const user = await User.find((user) => user.username == username); // Find user by username
     if (!user) {
-      if (username.length > 10) {
+      if (username.length > 10 || username.length < 3) {
         return res
           .status(400)
-          .json({ error: "Username must be less than 10 characters" }); // Handle username length
+          .json({ error: "Username must be between 3-10 characters" }); // Handle username length
       }
-      if (password.length > 20) {
+      if (password.length > 20 || password.length < 6) {
         return res
           .status(400)
-          .json({ error: "Password must be less than 20 characters" }); // Handle username length
+          .json({ error: "Password must be between 6-20 characters" }); // Handle username length
       }
       const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with bcrypt
       const newUser = {
@@ -51,7 +52,17 @@ export const loginUser = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid password" }); // Handle invalid password
     }
-    res.status(200).json({ message: "Login successful" }); // Respond with success message
+    console.log("Sheed", process.env.AUTH_SEED); 
+    const token = jwt.sign(
+      { username: user.username }, // Username as payload
+      process.env.AUTH_SEED, // Secret seed from environment variables
+      {
+        expiresIn: "1h", // Token expiration time
+      }
+    ); // Generate a JWT token
+    res.status(200).json({ message: "Login successful",
+      token, // Respond with the generated token
+     }); // Respond with success message
   } catch (error) {
     res.status(500).json({ error: "Error logging in user" }); // Handle errors
     console.error(error); // Log the error for debugging
