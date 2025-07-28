@@ -184,7 +184,7 @@ export default authRoutes;
     ); // Generate a JWT token
 ```
 5. Lets go to create a _route_ file with the name **`chat.route.js`**.
-6. Same for the _controller_ wiht the name **`chat.controller.js`**.
+6. Same for the _controller_ with the name **`chat.controller.js`**.
 7. And a _model_ with the name **`chat.model.js`**, with this basic code:
 ```js
 // It will better to use an array or a database for user management.
@@ -205,7 +205,7 @@ export const Chat = [
   },
 ];
 ```
-8. Let's to complete the **`chat.controller.js`**, whit this code:
+8. Let's to complete the **`chat.controller.js`**, with this code:
 ```js
 import { User } from "../models/user.model.js";
 import { Chat } from "../models/chat.model.js";
@@ -247,7 +247,7 @@ export default chatRoutes;
 import chatRoutes from "./routes/chat.route.js"; // Importing chat routes
 app.use("/api/chat", chatRoutes); // Use the chat routes under the /api/chat
 ```
-11. Create the **`middleware/auth.js`** file, whit this code to validate the user keeps token getting by `(POST)auth/login`:
+11. Create the **`middleware/auth.js`** file, with this code to validate the user keeps token getting by `(POST)auth/login`:
 ```js
 import jwt from "jsonwebtoken"; // Importing jsonwebtoken for token verification
 
@@ -288,4 +288,188 @@ export default chatRoutes;
 ```
 13. It is the answer when the `token` is valid: </br> ![can-access with valid Token](../images/2025-07-27_192905.png "can-access with valid Token")
 14. And this is the answer when the `token` has expired: </br> ![can-access with Token expired](../images/2025-07-27_195116.png "can-access with Token expired")
+
+
+
+
+## 4. OpenAI and Vector Interaction
+
+1. Using the **`chat.controller.js`** file, let's add a new `post` function point to the _root_ of this _API_:
+```js
+// Function to interact with OpenAI and `Pinecone` Vector
+export const financeChat = async (req, res) => {
+  try {
+    const { username, question } = req.body; // Extract username and password from request body
+    const user = await User.find((user) => user.username == username); // Find user by username
+    if (user) {
+      // 1. Scraping and text extraction
+      // TODO: for of FINANCE_URLS and fetchAndExtractText()
+      // 2. Chunking
+      // TODO: chunkText();
+      // 3. Embeddings of the chunks
+      // TODO: embedChunks();
+      // 4. Vectorizing in Pinecone
+      // TODO: upsertEmbeddings();
+      // 5. Embedding of the question and search
+      // TODO: embedChunks([q]) and searchSimilarChunks()
+      const results = ""; //await searchSimilarChunks(questionEmbedding, 3);
+      res.status(200).json({ chat: results }); // Respond with success message
+    } else {
+      res.status(400).json({ error: "Username doesn't exists" }); // Handle duplicate username
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error testing Access" }); // Handle errors
+    console.error(error); // Log the error for debugging
+  }
+};
+```
+2. We need install some libraries or dependencies to `node.js` environment, then in a `TERMINAL` run this command, or </br> `npm install axios openai @pinecone-database/pinecone -E` </br> or </br> `pnpm add axios openai @pinecone-database/pinecone cheerio -E`
+3. What is the use of each dependency?
+   * [**axios**](https://www.npmjs.com/package/axios):  For HTTP request to externals URLs.
+   * [**openai**](https://www.npmjs.com/package/openai): For _embeddings_ generation in the OpenAI _API_.
+   * [**@pinecone-database/pinecone**](https://www.npmjs.com/package/@pinecone-database/pinecone): (opcional) For _vector store_, you can use `Pinecone`, `Weaviate`, or `FAISS` (the last one needs `Python`).
+   * [**dotenv**](https://www.npmjs.com/package/dotenv): It was installed previosly, it's for _Environment Variables_ manage.
+   * [**cheerio**](https://www.npmjs.com/package/cheerio): Cheerio is a fast, flexible, and lean implementation of core jQuery designed specifically for the server-side environment in Node.js. It allows for the parsing of HTML and XML documents and provides an API for traversing and manipulating the resulting data structure, making it a popular choice for web scraping and HTML manipulation tasks.
+4. Add to the **`chat.controller.js`** file the Fianacial _URLs_ in a `const`:
+```js
+// Constants for finance URLs
+const FINANCE_URLS = [
+  "https://www-google-com.translate.goog/finance/?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=sge",
+  "https://www.tradingview.com/markets/stocks-usa/#news",
+  "https://www.investing.com/markets/united-states",
+];
+```
+5. Add in **`chat.route.js`** file, the root using the funcion of the _controller_:
+```js
+import express from "express";
+import { canAccess, financeChat } from "../controllers/chat.controller.js";
+import { auth } from "../middleware/auth.js";
+
+const chatRoutes = express.Router(); // Create a new router instance
+
+chatRoutes.get("/can-access", [auth], canAccess); // Route to check user access
+chatRoutes.post("/", [auth], fianaceChat); // Route to handle chat requests
+
+// Export the router to be used in the main app
+export default chatRoutes;
+```
+6. Step 1 in `financeChat()` function, Scraping and text extraction, creating the **`services/scraper.js`** file with this code:
+```js
+import axios from "axios";
+import * as cheerio from 'cheerio';
+
+// Extract the main text from the body of a webpage
+export async function fetchAndExtractText(url) {
+  const { data } = await axios.get(url);
+  const $ = cheerio.load(data);
+  // You can adjust the selector based on the structure of each page
+  return $("body").text().replace(/\s+/g, " ").trim();
+}
+```
+7. Let's use `fetchAndExtractText()` into the **`chat.controller.js`** file:
+```js
+import { fetchAndExtractText } from "../services/scraper.js";
+...
+      // 1. Scraping and text extraction
+      let allText = "";
+      for (const url of FINANCE_URLS) {
+        const text = await fetchAndExtractText(url);
+        allText += text + "\n";
+      }
+```
+8. Step 2 in `financeChat()` function, Chunking, creating the **`services/scraper.js`** file with this code:
+```js
+export function chunkText(text, chunkSize = 500) {
+  const chunks = [];
+  for (let i = 0; i < text.length; i += chunkSize) {
+    chunks.push(text.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+```
+9. Let's use `chunkText()` into the **`chat.controller.js`** file:
+```js
+import { chunkText } from "../services/chunker.js"
+...
+      // 2. Chunking
+      const chunks = chunkText(allText, 500);
+```
+10. Step 3 in `financeChat()` function, Embeddings of the chunks, creating the **`services/embedding.js`** file with this code:
+```js
+import OpenAI from "openai";
+import dotenv from "dotenv"; // Importing dotenv to manage environment variables
+
+dotenv.config(); // Load environment variables from .env file
+console.log("OpenAI API Key:", process.env.OPENAI_API_KEY); // Debugging line to check if the API key is loaded correctly
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+export async function embedChunks(chunks) {
+  const embeddings = [];
+  for (const chunk of chunks) {
+    const response = await openai.embeddings.create({
+      model: "text-embedding-3-small", // "text-embedding-ada-002",
+      input: chunk,
+      dimensions: 1024, // Reduce dimensions to match Pinecone index
+    });
+    embeddings.push(response.data[0].embedding);
+  }
+  return embeddings;
+}
+```
+11. Let's use `embedChunks()` into the **`chat.controller.js`** file:
+```js
+import { embedChunks } from "../services/embedding.js"
+...
+      // 3. Embeddings of the chunks
+      const embeddings = await embedChunks(chunks);
+```
+12. For the next steps, it's necessary get a `PINECONE_API_KEY`, then go to the [`Pinecone`](https://www.pinecone.io/), this is the basic process: </br> ![Get the PINECONE API KEY](../images/2025-07-28_120436.gif "Get the PINECONE API KEY") </br> **Create as well the `"finance-index"` index.**
+13. Step 4 in `financeChat()` function, Vectorizing in Pinecone, creating the **`services/embedding.js`** file with this code:
+```js
+import { Pinecone } from "@pinecone-database/pinecone";
+
+const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
+const index = pinecone.Index("finance-index");
+
+export async function upsertEmbeddings(embeddings, chunks) {
+  const vectors = embeddings.map((embedding, i) => ({
+    id: `chunk-${i}`,
+    values: embedding,
+    metadata: { text: chunks[i] },
+  }));
+  await index.upsert(vectors);
+}
+```
+14. Let's use `upsertEmbeddings()` into the **`chat.controller.js`** file:
+```js
+import { upsertEmbeddings } from "../services/pineconeClient.js";
+...
+      // 4. Vectorizing in Pinecone
+      await upsertEmbeddings(embeddings, chunks);
+```
+15. Step 5 in `financeChat()` function, Embedding of the question and search, using the **`services/embedding.js`** file with this code:
+```js
+export async function searchSimilarChunks(queryEmbedding, topK = 3) {
+  const results = await index.query({
+    vector: queryEmbedding,
+    topK,
+    includeMetadata: true,
+  });
+  return results.matches.map((match) => match.metadata.text);
+}
+```
+16. Let's use `searchSimilarChunks()` into the **`chat.controller.js`** file:
+```js
+import {
+  upsertEmbeddings,
+  searchSimilarChunks,
+} from "../services/pineconeClient.js";
+...
+      // 5. Embedding of the question and search
+      const [questionEmbedding] = await embedChunks([question]);
+      const results = await searchSimilarChunks(questionEmbedding, 3);
+```
+17. This is the test to the `(POST)api/chat/`: </br> ![Test to (POST)api/chat/](../images/2025-07-28_135116.gif "Test to (POST)api/chat/")
+
+
 
