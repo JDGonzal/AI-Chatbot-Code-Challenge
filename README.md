@@ -13,20 +13,18 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 >
 > ## Part 1: User Stories & MVP Definition
 >
-> 1. As _Stock Market User_ I need to know the last "United States Indices".
-> 2. As _Stock Market User_ I need to know the last "Most Active Stocks".
-> 3. As _Stock Market User_ I need to know the last "Top Gainers".
-> 4. As _Stock Market User_ I need to know the last "United States Sector Summary"
+> 1. As _Stock Market User_ I need to know the last "United States Indices": </br> `{"username":"Admin","question":"What are the United States Indices?"}`
+> 2. As _Stock Market User_ I need to know the last "Most Active Stocks": </br> `{"username":"Admin","question":"What are the Most Active Stocks?"}`
+> 3. As _Stock Market User_ I need to know the last "Top Gainers": </br> `{"username":"Admin","question":"What are the Top Gainers?"}`
+> 4. As _Stock Market User_ I need to know the last "United States Sector Summary" </br> `{"username":"Admin","question":"What is the list Sector Summary?"}`
 >
-> The sites to do this request are:
-> * <https://www-google-com.translate.goog/finance/?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=sge>
-> * <https://www.tradingview.com/markets/stocks-usa/#news>
+> The site to do this request and scraping is:
 > * <https://www.investing.com/markets/united-states>
 >
 > ## Part 2: Project Kick-off & Scaffolding
 >
 >* Project will use [`Node.js/Express`](https://expressjs.com/)
->* This will be the directory layout: </br> [.]( "")
+>* This will be the directory layout: </br> ![Layout of the project](images/2025-07-28_174216.png "Layout of the project")
 >* Commit to git using the tree definiction as:
 >   * `feature`: This feature branch isolates the new code or changes related to that specific functionality.
 >   * `hotfix`: To isolate the fixes from the main (master) development line.
@@ -35,9 +33,21 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 >
 > Objective: Secure your chatbot with user/password login.
 >
+> 1. The user creation must be with the API using: </br> » URL:  `api/auth/register` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
+> 2. The user login to get the token: </br> » URL: `api/auth/login` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
+> 3. The check of validation (Optional): </br> » URL: `api/chat/can-access` </br> » Body: `{"username":"NewName"}` </br> » Header: `x-auth-token=<token>`
+> 4. Chat with Chatbot: </br> » URL: `api/chat` </br> » Body: `{"username":"NewName","question":"What are the Most Active Stocks?"}` </br> » Header: `x-auth-token=<token>`
+>
 > ## Part 4: Building the Core Chat API
 >
 > Objective: Implement the `/chat` endpoint and integrate with an LLM API
+>
+> After the user validation with the token, those are the steps:
+> 1. **Scraping and text extraction**</br> For of FINANCE_URLS and fetchAndExtractText()
+> 2. **Chunking** </br>ChunkText();
+> 3. **Embeddings of the chunks** </br> embedChunks();
+> 4. **Vectorizing in Pinecone** </br> upsertEmbeddings();
+> 5. **Embedding of the question and search** </br> embedChunks([q]) and searchSimilarChunks()
 >
 > ## Part 5: Simulating RAG (Knowledge Base Retrieval)
 >
@@ -66,12 +76,6 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 > * **Delivery Date:** August 1 of 2025
 > * **Deliverable:** Code repository url, chatbot repository
 > * **Deliver to:** <latinamericalearningdevelopment@perficient.com>
-
-
-
-
-
-
 
 
 
