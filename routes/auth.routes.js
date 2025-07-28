@@ -1,5 +1,6 @@
 import express from "express";
 import { registerUser, loginUser } from "../controllers/auth.controller.js";
+
 const authRoutes = express.Router(); // Create a new router instance
 
 // Define a route for user registration

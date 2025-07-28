@@ -15,6 +15,8 @@ app.get("/", (req, res) => {
 // Routes
 import  authRoutes  from "./routes/auth.routes.js"; // Importing authentication routes
 app.use("/api/auth", authRoutes); // Use the authentication routes under the /api/auth
+import chatRoutes from "./routes/chat.route.js"; // Importing chat routes
+app.use("/api/chat", chatRoutes); // Use the chat routes under the /api/chat
 
 // listen on the specified port
 app.listen(PORT, () => {
