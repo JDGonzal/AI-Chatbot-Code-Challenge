@@ -8,6 +8,10 @@ import {
   upsertEmbeddings,
   searchSimilarChunks,
 } from "../services/pineconeClient.js";
+import { 
+  generateResponseFromChunks, 
+  validateAndImproveChunks 
+} from "../services/openai.js";
 
 // Function to register a new user
 export const canAccess = async (req, res) => {
@@ -62,10 +66,45 @@ export const financeChat = async (req, res) => {
       const [questionEmbedding] = await embedChunks([question]);
       console.log("Question embedding created"); // Log the question embedding for debugging
       // 6. Search similar chunks in Pinecone 
-      const results = await searchSimilarChunks(questionEmbedding, 3);
-      console.log("Search results: \n", results); // Log the search results for debugging
-      // 7. Respond with the results
-      res.status(200).json({ chat: results }); // Respond with success message
+      const similarChunks = await searchSimilarChunks(questionEmbedding, 5);
+      console.log("Search results: \n", similarChunks); // Log the search results for debugging
+      
+      // 7. Validate and improve chunks with OpenAI
+      console.log("Validating and improving chunks with OpenAI...");
+      let validatedChunks;
+      try {
+        validatedChunks = await validateAndImproveChunks(similarChunks, "finanzas y mercados");
+        console.log("Validated chunks: \n", validatedChunks.length);
+      } catch (openaiError) {
+        console.warn("OpenAI validation failed, using original chunks:", openaiError.message);
+        validatedChunks = similarChunks; // Fallback to original chunks
+      }
+      
+      // 8. Generate coherent response using OpenAI
+      console.log("Generating response with OpenAI...");
+      let aiResponse;
+      try {
+        aiResponse = await generateResponseFromChunks(question, validatedChunks);
+        console.log("AI Response generated");
+      } catch (openaiError) {
+        console.warn("OpenAI response generation failed, using fallback:", openaiError.message);
+        // Fallback response with the chunks
+        aiResponse = `Basándome en la información financiera disponible, he encontrado ${validatedChunks.length} fragmentos relevantes para tu pregunta: "${question}". 
+
+Los datos más relevantes incluyen:
+${validatedChunks.slice(0, 3).map((chunk, index) => `${index + 1}. ${chunk.substring(0, 200)}...`).join('\n\n')}
+
+Nota: La respuesta generada automáticamente no está disponible en este momento, pero puedes revisar los fragmentos de información proporcionados.`;
+      }
+      
+      // 9. Respond with the AI-generated answer and source chunks
+      res.status(200).json({ 
+        chat: aiResponse,
+        sources: validatedChunks,
+        originalChunks: similarChunks.length,
+        validatedChunks: validatedChunks.length,
+        aiProcessed: true
+      }); // Respond with success message
     } else {
       res.status(400).json({ error: "Username doesn't exists" }); // Handle duplicate username
     }

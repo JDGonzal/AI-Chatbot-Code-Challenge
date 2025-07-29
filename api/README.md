@@ -13,11 +13,8 @@
 3. Run in a `TERMINAL` those commands: </br> `node -v` -> Must be `22.16.0` or up </br> `npm -v` -> Must be `10.9.2` or up.
 4. Install Postman
   [Postman Download](https://www.postman.com/downloads/)
-5. Install MySQL 5.6.x
-  [MySQL Download 5.6.26](https://downloads.mysql.com/archives/community/)
-6. Install Visual Studio Code
+1. Install Visual Studio Code
   [Visual Studio Download](https://code.visualstudio.com/insiders/)
-7. Al least access to [`Supabase`](https://supabase.com/), for a `user` table or access permissions.
 
 ## 1. Setting the environment
 
@@ -471,5 +468,57 @@ import {
 ```
 17. This is the test to the `(POST)api/chat/`: </br> ![Test to (POST)api/chat/](../images/2025-07-28_135116.gif "Test to (POST)api/chat/")
 
+## 5. Bugfix to use OpenAI after Vector
+
+### 1. New Service with OpenAI in the file **`services/openai.js`**:
+
+* `generateResponseFromChunks()`: Generate Genera consistent and structured aswers, using OpenAI based in the _chunks_ ssimilar to those found and the user question.
+
+* `validateAndImproveChunks()`: Validate an improvement the quality of the _chunks_, deleting the  irrelevant information and optimizing the content.
+
+### 2. Improved Controller **`controllers/chat.controller.js`**:
+
+* Full integration with OpenAI after Pinecone search
+
+* Increased number of searched chunks from 2 to 5 for better context
+
+* Automatic chunk validation and enhancement with OpenAI
+
+* Generation of consistent and professional responses
+
+* Robust error handling with automatic fallbacks
+
+* Rich response that includes:
+
+  * AI-generated response
+  * Fonts used
+  * Processing metrics
+
+### 3. Improved Flow:
+
+1. Scraping and extraction (unchanged)
+2. Chunking (unchanged)
+3. Embeddings (unchanged)
+4. Vectorization in Pinecone (unchanged)
+5. Search for similar chunks (improvement: more chunks)
+6. 🆕 Validation with OpenAI: Filters and improves the quality of chunks.
+7. 🆕 Response generation: Create coherent and professional responses
+
+### 4. Additional Features:
+
+* **Robust error handling**: If OpenAI fails, the system continues working with the original chunks
+* **Spanish responses**: Optimized for Spanish-speaking users
+* **Specialized financial context**: Specific prompts for financial information
+* **Intelligent fallback**: Structured response even if OpenAI is unavailable
+
+### 5. Required Configuration:
+
+To use the new features, make sure you have the environment variable:
+```ini
+PORT=#### Number Definition in each Server
+AUTH_SEED=Any_text_here_with_123456789
+OPENAI_API_KEY=your_openai_key_here
+PINECONE_API_KEY=your_pinecone_key_here
+```
 
 
