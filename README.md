@@ -48,6 +48,8 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 > 3. **Embeddings of the chunks** </br> embedChunks();
 > 4. **Vectorizing in Pinecone** </br> upsertEmbeddings();
 > 5. **Embedding of the question and search** </br> embedChunks([q]) and searchSimilarChunks()
+> 6. **OpenAI Validation and Improvement** </br> validateAndImproveChunks() - Validates and improves chunk quality
+> 7. **OpenAI Response Generation** </br> generateResponseFromChunks() - Generates coherent responses using OpenAI
 >
 > ## Part 5: Simulating RAG (Knowledge Base Retrieval)
 >
@@ -76,6 +78,3 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 > * **Delivery Date:** August 1 of 2025
 > * **Deliverable:** Code repository url, chatbot repository
 > * **Deliver to:** <latinamericalearningdevelopment@perficient.com>
-
-
-
