@@ -5,5 +5,16 @@ export default {
         node: 'current'
       }
     }]
-  ]
+  ],
+  env: {
+    test: {
+      presets: [
+        ['@babel/preset-env', {
+          targets: {
+            node: 'current'
+          }
+        }]
+      ]
+    }
+  }
 }; 

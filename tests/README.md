@@ -100,6 +100,10 @@ All external services are mocked to ensure:
 - Password hashing (bcrypt)
 - JWT token operations
 
+### Required Jest Configuration Files
+
+**⚠️ Important:** The file `jest-preset.js` must be created in the folder `node_modules/@babel/preset-env/jest-preset.js` for proper Jest configuration. This is required as per the [Jest Configuration Documentation](https://jestjs.io/docs/configuration).
+
 ### Environment Variables
 Test environment automatically sets:
 ```bash

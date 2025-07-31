@@ -4,9 +4,9 @@
   "description": "[AI_Chatbot_Code_Challenge(20250723)](\r https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/edit?tab=t.0)",
   "type": "module",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "jest --config jest.config.js",
+    "test:watch": "jest --config jest.config.js --watch",
+    "test:coverage": "jest --config jest.config.js --coverage",
     "dev": "nodemon server.js",
     "start": "node server.js"
   },
@@ -38,34 +38,5 @@
     "supertest": "^6.3.4",
     "@babel/preset-env": "^7.24.0",
     "@babel/core": "^7.24.0"
-  },
-  "jest": {
-    "preset": "@babel/preset-env",
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    },
-    "testMatch": [
-      "**/tests/**/*.test.js"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setup.js"
-    ],
-    "collectCoverageFrom": [
-      "controllers/**/*.js",
-      "middleware/**/*.js",
-      "services/**/*.js",
-      "routes/**/*.js"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"],
-    "coverageThreshold": {
-      "global": {
-        "branches": 80,
-        "functions": 80,
-        "lines": 80,
-        "statements": 80
-      }
-    }
   }
 }

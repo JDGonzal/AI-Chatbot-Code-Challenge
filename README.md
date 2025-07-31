@@ -10,6 +10,12 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 >I am creating a custom chat app to interact with my clients. The chatbot must be polite, maintain focus on delivering an excellent customer experience, and provide accurate, specific information about the chosen product. Each team should select a different product for their chatbot to support (e.g., a SaaS analytics tool, an e-commerce platform, or a fleet-management system).
 >
 >**The technical details are into this [README.md](api/README.md)**
+
+## 🎥 Demo Video
+
+![AI Chatbot Demo](images/2025-07-28_135116.gif)
+
+*Watch the AI Chatbot in action processing financial queries with authentication and real-time data retrieval*
 >
 > ## Part 1: User Stories & MVP Definition
 >
@@ -43,9 +49,21 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 >
 > Objective: Augment replies with product context.
 >
-> ## Part 6: Automated Testing
+> ## Part 6: Automated Testing ✅ **COMPLETED**
 >
 > Objective: Generate and run unit/integration tests.
+>
+> **Implementation:** Comprehensive Jest test suite with 45+ tests covering authentication flows, LLM integration, and retrieval logic. All external services (OpenAI, Pinecone, web scraping) are properly mocked for fast, reliable testing.
+>
+> **Usage:**
+> ```bash
+> npm install
+> npm test                    # Run all tests
+> npm run test:coverage      # Run with coverage report
+> npm run test:watch         # Development watch mode
+> ```
+>
+> **📖 [Detailed Testing Documentation](tests/README.md)** - Complete guide to the test suite, coverage details, and test scenarios.
 >
 > ## Part 7: CI/CD Pipeline Setup
 >
@@ -54,6 +72,23 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 > ## Part 8: Cloud Deployment & Env Configuration
 >
 > Objective: Deploy your containerized chatbot to the cloud.
+
+## 🧪 Testing Infrastructure
+
+The project includes a comprehensive automated testing suite:
+
+- **Unit Tests**: Controllers, middleware, and services
+- **Integration Tests**: Complete API endpoints with authentication
+- **Mocked Services**: OpenAI, Pinecone, and web scraping services
+- **Coverage**: 80%+ lines, functions, branches, and statements
+- **CI/CD Ready**: No external dependencies for testing
+
+**Quick Start:**
+```bash
+npm test
+```
+
+For detailed testing information, see [**Testing Documentation**](tests/README.md).
 >
 > ## Bonus Extensions
 >
