@@ -12,8 +12,8 @@ services:
       # - PINECONE_ENVIRONMENT=your_pinecone_environment
       # - PINECONE_INDEX_NAME=your_pinecone_index_name
       # - AUTH_SEED=your_jwt_secret_seed
-    # env_file:
-      # - .env  # Load environment variables from .env file if present
+    env_file:
+      - .env  # Load environment variables from .env file if present
     volumes:
       # Mount logs directory if you want to persist logs
       - ./logs:/app/logs
@@ -25,7 +25,7 @@ services:
       retries: 3
       start_period: 40s
 
-# Optional: Add a development service
+  # Optional: Add a development service
   ai-chatbot-dev:
     build: .
     ports:
