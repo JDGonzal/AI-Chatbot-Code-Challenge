@@ -30,7 +30,7 @@ NODE_ENV=production
 AUTH_SEED=your-secret-jwt-seed-here
 
 # OpenAI Configuration
-OPENAI_API_KEY="sk-ijklmnopqrstuvwxijklmnopqrstuvwxijklmnop"
+OPENAI_API_KEY=your-openia-api-key-here
 
 # Pinecone Configuration
 PINECONE_API_KEY=your-pinecone-api-key-here

@@ -11,7 +11,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  ACR_REGISTRY: ${{ vars.ACR_REGISTRY_NAME }}.azurecr.io
 
 jobs:
   test:
@@ -139,7 +138,7 @@ jobs:
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v3
       with:
-        registry: ${{ env.ACR_REGISTRY }}
+        registry: ${{ vars.ACR_REGISTRY }}
         username: ${{ vars.ACR_USERNAME }}
         password: ${{ vars.ACR_PASSWORD }}
         
@@ -148,8 +147,8 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          ${{ env.ACR_REGISTRY }}/ai-chatbot
+          ${{ vars.ACR_REGISTRY }}/${{ vars.REPOSITORY_NAME }}
+          ${{ vars.IMAGE_NAME }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -205,8 +204,17 @@ jobs:
       run: |
         echo "Deploying to staging environment..."
         echo "Image: ${{ needs.build.outputs.image-tag }}"
-        # Add your staging deployment commands here
-        # Example: kubectl set image deployment/ai-chatbot app=${{ needs.build.outputs.image-tag }}
+        # Set environment variables for docker-compose
+        export NODE_ENV=staging
+        export PORT=3000
+        export OPENAI_API_KEY="${{ vars.STAGING_OPENAI_API_KEY }}"
+        export PINECONE_API_KEY="${{ vars.STAGING_PINECONE_API_KEY }}"
+        export PINECONE_ENVIRONMENT="${{ vars.STAGING_PINECONE_ENVIRONMENT }}"
+        export PINECONE_INDEX_NAME="${{ vars.STAGING_PINECONE_INDEX_NAME }}"
+        export AUTH_SEED="${{ vars.STAGING_AUTH_SEED }}"
+        # Deploy using docker-compose
+        docker-compose up -d
+        # Alternative: kubectl set image deployment/ai-chatbot app=${{ needs.build.outputs.image-tag }}
         
     - name: Run smoke tests
       run: |
@@ -232,8 +240,17 @@ jobs:
       run: |
         echo "Deploying to production environment..."
         echo "Image: ${{ needs.build.outputs.image-tag }}"
-        # Add your production deployment commands here
-        # Example: kubectl set image deployment/ai-chatbot app=${{ needs.build.outputs.image-tag }}
+        # Set environment variables for docker-compose
+        export NODE_ENV=production
+        export PORT=3000
+        export OPENAI_API_KEY="${{ vars.PROD_OPENAI_API_KEY }}"
+        export PINECONE_API_KEY="${{ vars.PROD_PINECONE_API_KEY }}"
+        export PINECONE_ENVIRONMENT="${{ vars.PROD_PINECONE_ENVIRONMENT }}"
+        export PINECONE_INDEX_NAME="${{ vars.PROD_PINECONE_INDEX_NAME }}"
+        export AUTH_SEED="${{ vars.PROD_AUTH_SEED }}"
+        # Deploy using docker-compose
+        docker-compose up -d
+        # Alternative: kubectl set image deployment/ai-chatbot app=${{ needs.build.outputs.image-tag }}
         
     - name: Run health checks
       run: |
