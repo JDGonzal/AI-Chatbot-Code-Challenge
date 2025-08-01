@@ -1,0 +1,44 @@
+services:
+  ai-chatbot:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Add your environment variables here
+      # - OPENAI_API_KEY=your_openai_api_key
+      # - PINECONE_API_KEY=your_pinecone_api_key
+      # - PINECONE_ENVIRONMENT=your_pinecone_environment
+      # - PINECONE_INDEX_NAME=your_pinecone_index_name
+      # - AUTH_SEED=your_jwt_secret_seed
+    # env_file:
+      # - .env  # Load environment variables from .env file if present
+    volumes:
+      # Mount logs directory if you want to persist logs
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { host: 'localhost', port: process.env.PORT || 3000, timeout: 2000 }; const request = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); request.on('error', () => process.exit(1)); request.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Optional: Add a development service
+  ai-chatbot-dev:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    #env_file:
+    #  - .env
+    volumes:
+      # Mount the entire app directory for development
+      - .:/app
+      - /app/node_modules  # Prevent overwriting node_modules
+    command: pnpm dev
+    profiles:
+      - dev
