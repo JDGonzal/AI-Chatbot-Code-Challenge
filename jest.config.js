@@ -25,11 +25,5 @@ export default {
       statements: 80
     }
   },
-  moduleFileExtensions: ['js', 'json'],
-  extensionsToTreatAsEsm: ['.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  }
+  moduleFileExtensions: ['js', 'json']
 }; 
