@@ -10,8 +10,33 @@ import { Pinecone } from '@pinecone-database/pinecone';
 // Mock dependencies
 jest.mock('axios');
 jest.mock('cheerio');
-jest.mock('openai');
-jest.mock('@pinecone-database/pinecone');
+
+// Mock OpenAI
+jest.mock('openai', () => {
+  const mockCreate = jest.fn();
+  const MockOpenAI = jest.fn().mockImplementation(() => ({
+    embeddings: {
+      create: mockCreate
+    }
+  }));
+  MockOpenAI.mockCreate = mockCreate; // Expose for tests
+  return MockOpenAI;
+});
+
+// Mock Pinecone
+jest.mock('@pinecone-database/pinecone', () => {
+  const mockUpsert = jest.fn();
+  const mockQuery = jest.fn();
+  const MockPinecone = jest.fn().mockImplementation(() => ({
+    Index: jest.fn().mockReturnValue({
+      upsert: mockUpsert,
+      query: mockQuery
+    })
+  }));
+  MockPinecone.mockUpsert = mockUpsert; // Expose for tests
+  MockPinecone.mockQuery = mockQuery; // Expose for tests
+  return { Pinecone: MockPinecone };
+});
 
 describe('Services', () => {
   beforeEach(() => {
@@ -127,29 +152,18 @@ describe('Services', () => {
   });
 
   describe('Embedding Service', () => {
-    let mockOpenAI;
-    
-    beforeEach(() => {
-      mockOpenAI = {
-        embeddings: {
-          create: jest.fn()
-        }
-      };
-      OpenAI.mockImplementation(() => mockOpenAI);
-    });
-
     describe('embedChunks', () => {
       test('should create embeddings for single chunk', async () => {
         const chunks = ['Test chunk'];
         const mockEmbedding = [0.1, 0.2, 0.3];
         
-        mockOpenAI.embeddings.create.mockResolvedValue({
+        OpenAI.mockCreate.mockResolvedValue({
           data: [{ embedding: mockEmbedding }]
         });
 
         const result = await embedChunks(chunks);
 
-        expect(mockOpenAI.embeddings.create).toHaveBeenCalledWith({
+        expect(OpenAI.mockCreate).toHaveBeenCalledWith({
           model: 'text-embedding-3-small',
           input: 'Test chunk',
           dimensions: 1024
@@ -164,20 +178,20 @@ describe('Services', () => {
           [0.4, 0.5, 0.6]
         ];
         
-        mockOpenAI.embeddings.create
+        OpenAI.mockCreate
           .mockResolvedValueOnce({ data: [{ embedding: mockEmbeddings[0] }] })
           .mockResolvedValueOnce({ data: [{ embedding: mockEmbeddings[1] }] });
 
         const result = await embedChunks(chunks);
 
-        expect(mockOpenAI.embeddings.create).toHaveBeenCalledTimes(2);
+        expect(OpenAI.mockCreate).toHaveBeenCalledTimes(2);
         expect(result).toEqual(mockEmbeddings);
       });
 
       test('should handle OpenAI API errors', async () => {
         const chunks = ['Test chunk'];
         
-        mockOpenAI.embeddings.create.mockRejectedValue(
+        OpenAI.mockCreate.mockRejectedValue(
           new Error('OpenAI API error')
         );
 
@@ -190,37 +204,23 @@ describe('Services', () => {
         const result = await embedChunks(chunks);
         
         expect(result).toEqual([]);
-        expect(mockOpenAI.embeddings.create).not.toHaveBeenCalled();
+        expect(OpenAI.mockCreate).not.toHaveBeenCalled();
       });
     });
   });
 
   describe('Pinecone Client Service', () => {
-    let mockIndex, mockPinecone;
-    
-    beforeEach(() => {
-      mockIndex = {
-        upsert: jest.fn(),
-        query: jest.fn()
-      };
-      
-      mockPinecone = {
-        Index: jest.fn().mockReturnValue(mockIndex)
-      };
-      
-      Pinecone.mockImplementation(() => mockPinecone);
-    });
 
     describe('upsertEmbeddings', () => {
       test('should upsert embeddings successfully', async () => {
         const embeddings = [[0.1, 0.2], [0.3, 0.4]];
         const chunks = ['chunk1', 'chunk2'];
         
-        mockIndex.upsert.mockResolvedValue({});
+        Pinecone.mockUpsert.mockResolvedValue({});
 
         await upsertEmbeddings(embeddings, chunks);
 
-        expect(mockIndex.upsert).toHaveBeenCalledWith([
+        expect(Pinecone.mockUpsert).toHaveBeenCalledWith([
           {
             id: 'chunk-0',
             values: [0.1, 0.2],
@@ -238,7 +238,7 @@ describe('Services', () => {
         const embeddings = [[0.1, 0.2]];
         const chunks = ['chunk1'];
         
-        mockIndex.upsert.mockRejectedValue(new Error('Pinecone error'));
+        Pinecone.mockUpsert.mockRejectedValue(new Error('Pinecone error'));
 
         await expect(upsertEmbeddings(embeddings, chunks))
           .rejects.toThrow('Pinecone error');
@@ -248,11 +248,11 @@ describe('Services', () => {
         const embeddings = [];
         const chunks = [];
         
-        mockIndex.upsert.mockResolvedValue({});
+        Pinecone.mockUpsert.mockResolvedValue({});
 
         await upsertEmbeddings(embeddings, chunks);
 
-        expect(mockIndex.upsert).toHaveBeenCalledWith([]);
+        expect(Pinecone.mockUpsert).toHaveBeenCalledWith([]);
       });
     });
 
@@ -266,11 +266,11 @@ describe('Services', () => {
           ]
         };
         
-        mockIndex.query.mockResolvedValue(mockResults);
+        Pinecone.mockQuery.mockResolvedValue(mockResults);
 
         const result = await searchSimilarChunks(queryEmbedding, 2);
 
-        expect(mockIndex.query).toHaveBeenCalledWith({
+        expect(Pinecone.mockQuery).toHaveBeenCalledWith({
           vector: queryEmbedding,
           topK: 2,
           includeMetadata: true
@@ -282,11 +282,11 @@ describe('Services', () => {
         const queryEmbedding = [0.1, 0.2, 0.3];
         const mockResults = { matches: [] };
         
-        mockIndex.query.mockResolvedValue(mockResults);
+        Pinecone.mockQuery.mockResolvedValue(mockResults);
 
         await searchSimilarChunks(queryEmbedding);
 
-        expect(mockIndex.query).toHaveBeenCalledWith({
+        expect(Pinecone.mockQuery).toHaveBeenCalledWith({
           vector: queryEmbedding,
           topK: 3, // default value
           includeMetadata: true
@@ -296,7 +296,7 @@ describe('Services', () => {
       test('should handle Pinecone query errors', async () => {
         const queryEmbedding = [0.1, 0.2, 0.3];
         
-        mockIndex.query.mockRejectedValue(new Error('Pinecone query error'));
+        Pinecone.mockQuery.mockRejectedValue(new Error('Pinecone query error'));
 
         await expect(searchSimilarChunks(queryEmbedding))
           .rejects.toThrow('Pinecone query error');
@@ -306,7 +306,7 @@ describe('Services', () => {
         const queryEmbedding = [0.1, 0.2, 0.3];
         const mockResults = { matches: [] };
         
-        mockIndex.query.mockResolvedValue(mockResults);
+        Pinecone.mockQuery.mockResolvedValue(mockResults);
 
         const result = await searchSimilarChunks(queryEmbedding);
 
