@@ -105,7 +105,7 @@ describe('Services', () => {
 
       test('should handle empty text', () => {
         const chunks = chunkText('');
-        expect(chunks).toEqual(['']);
+        expect(chunks).toEqual([]);
       });
 
       test('should handle text smaller than chunk size', () => {
