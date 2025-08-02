@@ -69,7 +69,7 @@ jobs:
         
     - name: Upload coverage reports
       if: ${{ vars.ENABLE_CODECOV == 'true' }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ vars.CODECOV_TOKEN }}
         files: ./coverage/lcov.info
