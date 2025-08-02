@@ -1,13 +1,15 @@
 import dotenv from 'dotenv';
 
-// Load test environment variables
-dotenv.config();
+// Load test environment variables (only in local development, not in CI)
+if (!process.env.CI && !process.env.GITHUB_ACTIONS) {
+  dotenv.config();
+}
 
-// Set test environment variables
+// Set test environment variables (use GitHub environment vars or fallback to test values)
 process.env.NODE_ENV = 'test';
-process.env.AUTH_SEED = 'test-auth-seed-for-jwt';
-process.env.OPENAI_API_KEY = 'test-openai-key';
-process.env.PINECONE_API_KEY = 'test-pinecone-key';
+process.env.AUTH_SEED = process.env.AUTH_SEED || 'test-auth-seed-for-jwt';
+process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test-openai-key';
+process.env.PINECONE_API_KEY = process.env.PINECONE_API_KEY || 'test-pinecone-key';
 
 // Mock console.log and console.error to reduce noise in tests
 global.console = {

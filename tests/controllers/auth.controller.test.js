@@ -4,8 +4,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // Mock dependencies
-jest.mock('bcryptjs');
-jest.mock('jsonwebtoken');
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn(),
+  compare: jest.fn()
+}));
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn()
+}));
 
 describe('Auth Controller', () => {
   let req, res, mockUser;
@@ -164,6 +169,7 @@ describe('Auth Controller', () => {
         req.body = { username: 'Admin', password: 'testpassword' };
         const mockToken = 'mock.jwt.token';
         
+        bcrypt.hash.mockResolvedValue('hashedpassword');
         bcrypt.compare.mockResolvedValue(true);
         jwt.sign.mockReturnValue(mockToken);
 
@@ -203,6 +209,7 @@ describe('Auth Controller', () => {
       test('should reject login with invalid password', async () => {
         req.body = { username: 'Admin', password: 'wrongpassword' };
         
+        bcrypt.hash.mockResolvedValue('hashedpassword');
         bcrypt.compare.mockResolvedValue(false);
 
         await loginUser(req, res);

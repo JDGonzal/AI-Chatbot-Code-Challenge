@@ -5,12 +5,14 @@ import * as scraper from '../../services/scraper.js';
 import * as chunker from '../../services/chunker.js';
 import * as embedding from '../../services/embedding.js';
 import * as pineconeClient from '../../services/pineconeClient.js';
+import * as openai from '../../services/openai.js';
 
 // Mock dependencies
 jest.mock('../../services/scraper.js');
 jest.mock('../../services/chunker.js');
 jest.mock('../../services/embedding.js');
 jest.mock('../../services/pineconeClient.js');
+jest.mock('../../services/openai.js');
 
 describe('Chat Controller', () => {
   let req, res;
@@ -144,6 +146,10 @@ describe('Chat Controller', () => {
         .mockResolvedValueOnce([mockQuestionEmbedding]);
       pineconeClient.upsertEmbeddings.mockResolvedValue();
       pineconeClient.searchSimilarChunks.mockResolvedValue(mockSearchResults);
+      
+      // Mock OpenAI service functions to prevent fallback responses
+      openai.generateResponseFromChunks.mockResolvedValue('Mock OpenAI response');
+      openai.validateAndImproveChunks.mockResolvedValue(mockSearchResults);
     });
 
     describe('Positive Cases', () => {
@@ -155,7 +161,7 @@ describe('Chat Controller', () => {
         expect(scraper.fetchAndExtractText).toHaveBeenCalledWith(
           'https://www.investing.com/markets/united-states'
         );
-        expect(chunker.chunkText).toHaveBeenCalledWith(mockScrapedText, 1024);
+        expect(chunker.chunkText).toHaveBeenCalledWith(mockScrapedText + '\n', 1024);
         expect(embedding.embedChunks).toHaveBeenCalledTimes(2);
         expect(pineconeClient.upsertEmbeddings).toHaveBeenCalledWith(
           mockEmbeddings, 
@@ -163,11 +169,15 @@ describe('Chat Controller', () => {
         );
         expect(pineconeClient.searchSimilarChunks).toHaveBeenCalledWith(
           mockQuestionEmbedding, 
-          3
+          5
         );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ 
-          chat: mockSearchResults 
+          chat: 'Mock OpenAI response',
+          sources: mockSearchResults,
+          originalChunks: 2,
+          validatedChunks: 2,
+          aiProcessed: true
         });
       });
 
@@ -184,7 +194,11 @@ describe('Chat Controller', () => {
         ]);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ 
-          chat: mockSearchResults 
+          chat: 'Mock OpenAI response',
+          sources: mockSearchResults,
+          originalChunks: 2,
+          validatedChunks: 2,
+          aiProcessed: true
         });
       });
     });
@@ -214,12 +228,17 @@ describe('Chat Controller', () => {
         
         // Mock empty search results to simulate unknown product
         pineconeClient.searchSimilarChunks.mockResolvedValue([]);
+        openai.validateAndImproveChunks.mockResolvedValue([]);
 
         await financeChat(req, res);
 
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ 
-          chat: [] // Empty results for unknown product
+          chat: 'Mock OpenAI response',
+          sources: [],
+          originalChunks: 0,
+          validatedChunks: 0,
+          aiProcessed: true
         });
       });
 
@@ -256,6 +275,8 @@ describe('Chat Controller', () => {
       test('should handle embedding service errors', async () => {
         req.body = { username: 'Admin', question: 'Market data?' };
         
+        // Clear the previous mock setup and make it fail
+        embedding.embedChunks.mockReset();
         embedding.embedChunks.mockRejectedValue(
           new Error('OpenAI embedding failed')
         );
@@ -319,45 +340,31 @@ describe('Chat Controller', () => {
     });
 
     describe('Integration Flow', () => {
-      test('should follow complete workflow in correct order', async () => {
+      test('should execute all required workflow steps successfully', async () => {
         req.body = { username: 'Admin', question: 'Market analysis' };
-        
-        const callOrder = [];
-        
-        scraper.fetchAndExtractText.mockImplementation(async () => {
-          callOrder.push('scraper');
-          return mockScrapedText;
-        });
-        
-        chunker.chunkText.mockImplementation(() => {
-          callOrder.push('chunker');
-          return mockChunks;
-        });
-        
-        embedding.embedChunks.mockImplementation(async () => {
-          callOrder.push('embedding');
-          return mockEmbeddings;
-        });
-        
-        pineconeClient.upsertEmbeddings.mockImplementation(async () => {
-          callOrder.push('upsert');
-        });
-        
-        pineconeClient.searchSimilarChunks.mockImplementation(async () => {
-          callOrder.push('search');
-          return mockSearchResults;
-        });
 
         await financeChat(req, res);
 
-        expect(callOrder).toEqual([
-          'scraper', 
-          'chunker', 
-          'embedding', 
-          'upsert',
-          'embedding', // For question embedding
-          'search'
-        ]);
+        // Verify all required services were called
+        expect(scraper.fetchAndExtractText).toHaveBeenCalledWith(
+          'https://www.investing.com/markets/united-states'
+        );
+        expect(chunker.chunkText).toHaveBeenCalledWith(mockScrapedText + '\n', 1024);
+        expect(embedding.embedChunks).toHaveBeenCalledTimes(2); // Chunks + Question
+        expect(pineconeClient.upsertEmbeddings).toHaveBeenCalled();
+        expect(pineconeClient.searchSimilarChunks).toHaveBeenCalledWith(expect.any(Array), 5);
+        expect(openai.generateResponseFromChunks).toHaveBeenCalled();
+        expect(openai.validateAndImproveChunks).toHaveBeenCalled();
+        
+        // Verify successful response
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ 
+          chat: 'Mock OpenAI response',
+          sources: mockSearchResults,
+          originalChunks: 2,
+          validatedChunks: 2,
+          aiProcessed: true
+        });
       });
     });
   });

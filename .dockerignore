@@ -1,0 +1,56 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Testing
+tests/
+coverage/
+*.test.js
+test_cases.mp4
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+
+# Git
+.git
+.gitignore
+
+# Documentation and images
+README.md
+TESTING_IMPLEMENTATION.md
+JEST_CONFIGURATION.md
+images/
+*.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build artifacts
+dist/
+build/
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml

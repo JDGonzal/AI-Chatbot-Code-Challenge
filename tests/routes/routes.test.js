@@ -7,14 +7,22 @@ import * as scraper from '../../services/scraper.js';
 import * as chunker from '../../services/chunker.js';
 import * as embedding from '../../services/embedding.js';
 import * as pineconeClient from '../../services/pineconeClient.js';
+import * as openai from '../../services/openai.js';
 
 // Mock dependencies
-jest.mock('bcryptjs');
-jest.mock('jsonwebtoken');
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn(),
+  compare: jest.fn()
+}));
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+  verify: jest.fn()
+}));
 jest.mock('../../services/scraper.js');
 jest.mock('../../services/chunker.js');
 jest.mock('../../services/embedding.js');
 jest.mock('../../services/pineconeClient.js');
+jest.mock('../../services/openai.js');
 
 describe('API Routes Integration Tests', () => {
   let validToken;
@@ -49,6 +57,10 @@ describe('API Routes Integration Tests', () => {
         callback(new Error('Invalid token'), null);
       }
     });
+    
+    // Setup bcrypt mocks
+    bcrypt.hash.mockResolvedValue('hashedpassword');
+    bcrypt.compare.mockResolvedValue(true);
   });
 
   describe('Root Route', () => {
@@ -272,6 +284,10 @@ describe('API Routes Integration Tests', () => {
           .mockResolvedValueOnce([mockQuestionEmbedding]);
         pineconeClient.upsertEmbeddings.mockResolvedValue();
         pineconeClient.searchSimilarChunks.mockResolvedValue(mockSearchResults);
+        
+        // Mock OpenAI service functions to prevent fallback responses
+        openai.generateResponseFromChunks.mockResolvedValue('Mock OpenAI response');
+        openai.validateAndImproveChunks.mockResolvedValue(mockSearchResults);
       });
 
       describe('Positive Cases', () => {
@@ -286,7 +302,11 @@ describe('API Routes Integration Tests', () => {
             .expect(200);
 
           expect(response.body).toEqual({
-            chat: mockSearchResults
+            chat: 'Mock OpenAI response',
+            sources: mockSearchResults,
+            originalChunks: 2,
+            validatedChunks: 2,
+            aiProcessed: true
           });
           expect(scraper.fetchAndExtractText).toHaveBeenCalled();
           expect(chunker.chunkText).toHaveBeenCalled();
@@ -332,6 +352,7 @@ describe('API Routes Integration Tests', () => {
         test('should handle unknown product query gracefully', async () => {
           // Mock empty search results for unknown product
           pineconeClient.searchSimilarChunks.mockResolvedValue([]);
+          openai.validateAndImproveChunks.mockResolvedValue([]);
 
           const response = await request(app)
             .post('/api/chat')
@@ -343,7 +364,11 @@ describe('API Routes Integration Tests', () => {
             .expect(200);
 
           expect(response.body).toEqual({
-            chat: [] // Empty results for unknown product
+            chat: 'Mock OpenAI response',
+            sources: [],
+            originalChunks: 0,
+            validatedChunks: 0,
+            aiProcessed: true
           });
         });
 
@@ -387,6 +412,8 @@ describe('API Routes Integration Tests', () => {
         });
 
         test('should handle embedding service failure', async () => {
+          // Clear the previous mock setup and make it fail
+          embedding.embedChunks.mockReset();
           embedding.embedChunks.mockRejectedValue(
             new Error('OpenAI API failed')
           );
