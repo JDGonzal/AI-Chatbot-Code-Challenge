@@ -31,12 +31,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
         
     - name: Setup pnpm
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v4
       with:
         version: latest
         
     - name: Setup pnpm cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.pnpm-store
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -92,7 +92,7 @@ jobs:
         node-version: '18.x'
         
     - name: Setup pnpm
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v4
       with:
         version: latest
         
@@ -173,7 +173,7 @@ jobs:
         
     - name: Generate SBOM
       if: github.event_name != 'pull_request'
-      uses: anchore/sbom-action@v0
+      uses: anchore/sbom-action@v0.17.2
       with:
         image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         format: spdx-json
@@ -181,7 +181,7 @@ jobs:
         
     - name: Upload SBOM
       if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: sbom
         path: sbom.spdx.json
@@ -192,10 +192,6 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     
-    environment:
-      name: staging
-      url: https://ai-chatbot-staging.example.com
-      
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -228,10 +224,6 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
-    environment:
-      name: production
-      url: https://ai-chatbot.example.com
-      
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
