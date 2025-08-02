@@ -26,22 +26,25 @@ describe('Services', () => {
         
         axios.get.mockResolvedValue({ data: mockHtml });
         
-        const mockCheerio = {
-          text: jest.fn().mockReturnValue('Title    Content    here   '),
-          replace: jest.fn()
+        // Mock cheerio load function and the $ function it returns
+        const mockBodySelector = {
+          text: jest.fn().mockReturnValue('Title    Content    here   ')
         };
-        const mockLoad = jest.fn().mockReturnValue(() => mockCheerio);
-        cheerio.load.mockReturnValue(mockLoad);
-        
-        // Mock the text processing chain
-        mockCheerio.text.mockReturnValue('Title    Content    here   ');
-        String.prototype.replace = jest.fn().mockReturnValue('Title Content here');
-        String.prototype.trim = jest.fn().mockReturnValue('Title Content here');
+        const mock$ = jest.fn((selector) => {
+          if (selector === 'body') {
+            return mockBodySelector;
+          }
+          return mockBodySelector;
+        });
+        cheerio.load.mockReturnValue(mock$);
 
         const result = await fetchAndExtractText('https://example.com');
 
         expect(axios.get).toHaveBeenCalledWith('https://example.com');
         expect(cheerio.load).toHaveBeenCalledWith(mockHtml);
+        expect(mock$).toHaveBeenCalledWith('body');
+        expect(mockBodySelector.text).toHaveBeenCalled();
+        expect(result).toBe('Title Content here');
       });
 
       test('should handle axios errors', async () => {
@@ -56,16 +59,24 @@ describe('Services', () => {
         
         axios.get.mockResolvedValue({ data: mockHtml });
         
-        const mockCheerio = {
+        // Mock cheerio load function and the $ function it returns
+        const mockBodySelector = {
           text: jest.fn().mockReturnValue('')
         };
-        cheerio.load.mockReturnValue(() => mockCheerio);
-        String.prototype.replace = jest.fn().mockReturnValue('');
-        String.prototype.trim = jest.fn().mockReturnValue('');
+        const mock$ = jest.fn((selector) => {
+          if (selector === 'body') {
+            return mockBodySelector;
+          }
+          return mockBodySelector;
+        });
+        cheerio.load.mockReturnValue(mock$);
 
         const result = await fetchAndExtractText('https://empty.com');
         
         expect(axios.get).toHaveBeenCalledWith('https://empty.com');
+        expect(cheerio.load).toHaveBeenCalledWith(mockHtml);
+        expect(mock$).toHaveBeenCalledWith('body');
+        expect(result).toBe('');
       });
     });
   });
