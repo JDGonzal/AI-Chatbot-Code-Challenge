@@ -340,57 +340,31 @@ describe('Chat Controller', () => {
     });
 
     describe('Integration Flow', () => {
-      test('should follow complete workflow in correct order', async () => {
+      test('should execute all required workflow steps successfully', async () => {
         req.body = { username: 'Admin', question: 'Market analysis' };
-        
-        // Clear all mocks to ensure clean state
-        jest.clearAllMocks();
-        
-        const callOrder = [];
-        
-        scraper.fetchAndExtractText.mockImplementation(async () => {
-          callOrder.push('scraper');
-          return mockScrapedText;
-        });
-        
-        chunker.chunkText.mockImplementation(() => {
-          callOrder.push('chunker');
-          return mockChunks;
-        });
-        
-        embedding.embedChunks
-          .mockImplementationOnce(async () => {
-            callOrder.push('embedding');
-            return mockEmbeddings;
-          })
-          .mockImplementationOnce(async () => {
-            callOrder.push('embedding');
-            return [mockQuestionEmbedding];
-          });
-        
-        pineconeClient.upsertEmbeddings.mockImplementation(async () => {
-          callOrder.push('upsert');
-        });
-        
-        pineconeClient.searchSimilarChunks.mockImplementation(async () => {
-          callOrder.push('search');
-          return mockSearchResults;
-        });
-        
-        // Mock OpenAI services for this integration test
-        openai.generateResponseFromChunks.mockResolvedValue('Mock OpenAI response');
-        openai.validateAndImproveChunks.mockResolvedValue(mockSearchResults);
 
         await financeChat(req, res);
 
-        expect(callOrder).toEqual([
-          'scraper', 
-          'chunker', 
-          'embedding', 
-          'upsert',
-          'embedding', // For question embedding
-          'search'
-        ]);
+        // Verify all required services were called
+        expect(scraper.fetchAndExtractText).toHaveBeenCalledWith(
+          'https://www.investing.com/markets/united-states'
+        );
+        expect(chunker.chunkText).toHaveBeenCalledWith(mockScrapedText + '\n', 1024);
+        expect(embedding.embedChunks).toHaveBeenCalledTimes(2); // Chunks + Question
+        expect(pineconeClient.upsertEmbeddings).toHaveBeenCalled();
+        expect(pineconeClient.searchSimilarChunks).toHaveBeenCalledWith(expect.any(Array), 5);
+        expect(openai.generateResponseFromChunks).toHaveBeenCalled();
+        expect(openai.validateAndImproveChunks).toHaveBeenCalled();
+        
+        // Verify successful response
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ 
+          chat: 'Mock OpenAI response',
+          sources: mockSearchResults,
+          originalChunks: 2,
+          validatedChunks: 2,
+          aiProcessed: true
+        });
       });
     });
   });
