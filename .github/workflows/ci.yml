@@ -55,17 +55,17 @@ jobs:
       run: pnpm test
       env:
         NODE_ENV: test
-        AUTH_SEED: test-auth-seed-for-ci
-        OPENAI_API_KEY: test-openai-key
-        PINECONE_API_KEY: test-pinecone-key
+        AUTH_SEED: ${{ vars.AUTH_SEED }}
+        OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+        PINECONE_API_KEY: ${{ vars.PINECONE_API_KEY }}
         
     - name: Run tests with coverage
       run: pnpm test:coverage
       env:
         NODE_ENV: test
-        AUTH_SEED: test-auth-seed-for-ci
-        OPENAI_API_KEY: test-openai-key
-        PINECONE_API_KEY: test-pinecone-key
+        AUTH_SEED: ${{ vars.AUTH_SEED }}
+        OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+        PINECONE_API_KEY: ${{ vars.PINECONE_API_KEY }}
         
     - name: Upload coverage reports
       if: ${{ vars.ENABLE_CODECOV == 'true' }}
