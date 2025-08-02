@@ -302,7 +302,11 @@ describe('API Routes Integration Tests', () => {
             .expect(200);
 
           expect(response.body).toEqual({
-            chat: mockSearchResults
+            chat: 'Mock OpenAI response',
+            sources: mockSearchResults,
+            originalChunks: 2,
+            validatedChunks: 2,
+            aiProcessed: true
           });
           expect(scraper.fetchAndExtractText).toHaveBeenCalled();
           expect(chunker.chunkText).toHaveBeenCalled();
@@ -348,6 +352,7 @@ describe('API Routes Integration Tests', () => {
         test('should handle unknown product query gracefully', async () => {
           // Mock empty search results for unknown product
           pineconeClient.searchSimilarChunks.mockResolvedValue([]);
+          openai.validateAndImproveChunks.mockResolvedValue([]);
 
           const response = await request(app)
             .post('/api/chat')
@@ -359,7 +364,11 @@ describe('API Routes Integration Tests', () => {
             .expect(200);
 
           expect(response.body).toEqual({
-            chat: [] // Empty results for unknown product
+            chat: 'Mock OpenAI response',
+            sources: [],
+            originalChunks: 0,
+            validatedChunks: 0,
+            aiProcessed: true
           });
         });
 
@@ -403,6 +412,8 @@ describe('API Routes Integration Tests', () => {
         });
 
         test('should handle embedding service failure', async () => {
+          // Clear the previous mock setup and make it fail
+          embedding.embedChunks.mockReset();
           embedding.embedChunks.mockRejectedValue(
             new Error('OpenAI API failed')
           );
