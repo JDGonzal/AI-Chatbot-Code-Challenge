@@ -7,14 +7,22 @@ import * as scraper from '../../services/scraper.js';
 import * as chunker from '../../services/chunker.js';
 import * as embedding from '../../services/embedding.js';
 import * as pineconeClient from '../../services/pineconeClient.js';
+import * as openai from '../../services/openai.js';
 
 // Mock dependencies
-jest.mock('bcryptjs');
-jest.mock('jsonwebtoken');
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn(),
+  compare: jest.fn()
+}));
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+  verify: jest.fn()
+}));
 jest.mock('../../services/scraper.js');
 jest.mock('../../services/chunker.js');
 jest.mock('../../services/embedding.js');
 jest.mock('../../services/pineconeClient.js');
+jest.mock('../../services/openai.js');
 
 describe('API Routes Integration Tests', () => {
   let validToken;
@@ -49,6 +57,10 @@ describe('API Routes Integration Tests', () => {
         callback(new Error('Invalid token'), null);
       }
     });
+    
+    // Setup bcrypt mocks
+    bcrypt.hash.mockResolvedValue('hashedpassword');
+    bcrypt.compare.mockResolvedValue(true);
   });
 
   describe('Root Route', () => {
@@ -272,6 +284,10 @@ describe('API Routes Integration Tests', () => {
           .mockResolvedValueOnce([mockQuestionEmbedding]);
         pineconeClient.upsertEmbeddings.mockResolvedValue();
         pineconeClient.searchSimilarChunks.mockResolvedValue(mockSearchResults);
+        
+        // Mock OpenAI service functions to prevent fallback responses
+        openai.generateResponseFromChunks.mockResolvedValue('Mock OpenAI response');
+        openai.validateAndImproveChunks.mockResolvedValue(mockSearchResults);
       });
 
       describe('Positive Cases', () => {
