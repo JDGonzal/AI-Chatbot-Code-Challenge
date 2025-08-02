@@ -4,9 +4,9 @@
   "description": "[AI_Chatbot_Code_Challenge(20250723)](\r https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/edit?tab=t.0)",
   "type": "module",
   "scripts": {
-    "test": "jest --config jest.config.js",
-    "test:watch": "jest --config jest.config.js --watch",
-    "test:coverage": "jest --config jest.config.js --coverage",
+    "test": "jest --config jest.config.cjs",
+    "test:watch": "jest --config jest.config.cjs --watch",
+    "test:coverage": "jest --config jest.config.cjs --coverage",
     "dev": "nodemon server.js",
     "start": "node server.js"
   },
