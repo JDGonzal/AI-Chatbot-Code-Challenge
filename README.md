@@ -39,6 +39,8 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 >
 > Objective: Secure your chatbot with user/password login.
 >
+> The URL of the API, is this: </br> <https://webapp-ai-chatbot-cdg8a7cpetckeja2.westeurope-01.azurewebsites.net/>
+>
 > 1. The user creation must be with the API using: </br> » Method: `POST`</br> » URL:  `api/auth/register` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
 > 2. The user login to get the token:</br> » Method: `POST` </br> » URL: `api/auth/login` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
 > 3. The check of validation (Optional):</br> » Method: `GET` </br> » URL: `api/chat/can-access` </br> » Body: `{"username":"NewName"}` </br> » Header: `x-auth-token=<token>`
