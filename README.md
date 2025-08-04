@@ -39,10 +39,12 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 >
 > Objective: Secure your chatbot with user/password login.
 >
-> 1. The user creation must be with the API using: </br> » URL:  `api/auth/register` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
-> 2. The user login to get the token: </br> » URL: `api/auth/login` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
-> 3. The check of validation (Optional): </br> » URL: `api/chat/can-access` </br> » Body: `{"username":"NewName"}` </br> » Header: `x-auth-token=<token>`
-> 4. Chat with Chatbot: </br> » URL: `api/chat` </br> » Body: `{"username":"NewName","question":"What are the Most Active Stocks?"}` </br> » Header: `x-auth-token=<token>`
+> 1. The user creation must be with the API using: </br> » Method: `POST`</br> » URL:  `api/auth/register` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
+> 2. The user login to get the token:</br> » Method: `POST` </br> » URL: `api/auth/login` </br> » Body: `{"username":"NewName", "password": "abcd1234"}`
+> 3. The check of validation (Optional):</br> » Method: `GET` </br> » URL: `api/chat/can-access` </br> » Body: `{"username":"NewName"}` </br> » Header: `x-auth-token=<token>`
+> 4. Chat with Chatbot: </br> » Method: `POST`</br> » URL: `api/chat` </br> » Body: `{"username":"NewName","question":"What are the Most Active Stocks?"}` </br> » Header: `x-auth-token=<token>`
+>
+>[![Click here to get the `Postman` JSON file to import](images/2025-08-04_112613.png "Click here to get the `Postman` JSON file to import")](api/AI-Chatbot-Code-Challenge.postman_collection.json)
 >
 > ## Part 4: Building the Core Chat API
 >

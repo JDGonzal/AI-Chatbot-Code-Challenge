@@ -1,5 +1,5 @@
 import { Pinecone } from "@pinecone-database/pinecone";
-console.log("Pinecone API Key:", process.env.PINECONE_API_KEY); // Debugging line to check if the API key is loaded correctly
+// console.log("Pinecone API Key:", process.env.PINECONE_API_KEY); // Debugging line to check if the API key is loaded correctly
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 const index = pinecone.Index("finance-index");
 

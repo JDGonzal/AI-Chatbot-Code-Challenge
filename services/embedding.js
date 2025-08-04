@@ -2,7 +2,8 @@ import OpenAI from "openai";
 import dotenv from "dotenv"; // Importing dotenv to manage environment variables
 
 dotenv.config(); // Load environment variables from .env file
-console.log("OpenAI API Key:", process.env.OPENAI_API_KEY); // Debugging line to check if the API key is loaded correctly
+// console.log("OpenAI API Key:", process.env.OPENAI_API_KEY); // Debugging line to check if the API key is loaded correctly
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function embedChunks(chunks) {

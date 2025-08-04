@@ -1,0 +1,159 @@
+{
+	"info": {
+		"_postman_id": "ea2d9236-bcb3-41f2-b9d2-3fa679d3da2e",
+		"name": "AI-Chatbot-Code-Challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "265112",
+		"_collection_link": "https://cloudy-shuttle-534040.postman.co/workspace/AI-Chatbot-Code-Challenge~0b7147a6-5694-4c4c-bd29-4fec589e095a/collection/265112-ea2d9236-bcb3-41f2-b9d2-3fa679d3da2e?action=share&source=collection_link&creator=265112"
+	},
+	"item": [
+		{
+			"name": "api/auth/register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"NewName\", \"password\": \"abcd1234\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapp-ai-chatbot-cdg8a7cpetckeja2.westeurope-01.azurewebsites.net/api/auth/register",
+					"protocol": "https",
+					"host": [
+						"webapp-ai-chatbot-cdg8a7cpetckeja2",
+						"westeurope-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/auth/login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"NewName\", \"password\": \"abcd1234\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapp-ai-chatbot-cdg8a7cpetckeja2.westeurope-01.azurewebsites.net/api/auth/login",
+					"protocol": "https",
+					"host": [
+						"webapp-ai-chatbot-cdg8a7cpetckeja2",
+						"westeurope-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/chat/can-access",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-auth-token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5ld05hbWUiLCJpYXQiOjE3NTQzMjQwMDMsImV4cCI6MTc1NDMyNzYwM30.2aqqLZ85xozKLtzlyHKcvJ1usoxjxEgaOrZITi6MZws",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"NewName\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapp-ai-chatbot-cdg8a7cpetckeja2.westeurope-01.azurewebsites.net/api/chat/can-access",
+					"protocol": "https",
+					"host": [
+						"webapp-ai-chatbot-cdg8a7cpetckeja2",
+						"westeurope-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"chat",
+						"can-access"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/chat",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-auth-token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5ld05hbWUiLCJpYXQiOjE3NTQzMjQwMDMsImV4cCI6MTc1NDMyNzYwM30.2aqqLZ85xozKLtzlyHKcvJ1usoxjxEgaOrZITi6MZws",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"NewName\",\"question\":\"What are the Most Active Stocks?\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://webapp-ai-chatbot-cdg8a7cpetckeja2.westeurope-01.azurewebsites.net/api/chat?x-auth-token=x-auth-token",
+					"protocol": "https",
+					"host": [
+						"webapp-ai-chatbot-cdg8a7cpetckeja2",
+						"westeurope-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"chat"
+					],
+					"query": [
+						{
+							"key": "x-auth-token",
+							"value": "x-auth-token"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
