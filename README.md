@@ -93,11 +93,11 @@ https://docs.google.com/document/d/1zZCIyEbKMMtyfb0tmi_OF0-P2THC3_Jp_qK894VxS1w/
 
 The project includes a comprehensive automated testing suite:
 
-- **Unit Tests**: Controllers, middleware, and services
-- **Integration Tests**: Complete API endpoints with authentication
-- **Mocked Services**: OpenAI, Pinecone, and web scraping services
-- **Coverage**: 80%+ lines, functions, branches, and statements
-- **CI/CD Ready**: No external dependencies for testing
+* **Unit Tests**: Controllers, middleware, and services
+* **Integration Tests**: Complete API endpoints with authentication
+* **Mocked Services**: OpenAI, Pinecone, and web scraping services
+* **Coverage**: 80%+ lines, functions, branches, and statements
+* **CI/CD Ready**: No external dependencies for testing
 
 **Quick Start:**
 ```bash
