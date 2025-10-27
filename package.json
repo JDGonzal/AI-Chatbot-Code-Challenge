@@ -37,6 +37,6 @@
     "jest": "30.2.0",
     "supertest": "7.1.4",
     "@babel/preset-env": "7.24.0",
-    "@babel/core": "7.28.4"
+    "@babel/core": "7.28.5"
   }
 }
