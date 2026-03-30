@@ -33,8 +33,8 @@ importers:
         specifier: 9.0.3
         version: 9.0.3
       openai:
-        specifier: 6.32.0
-        version: 6.32.0
+        specifier: 6.33.0
+        version: 6.33.0
     devDependencies:
       '@babel/core':
         specifier: 7.29.0
@@ -1893,8 +1893,8 @@ packages:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
 
-  openai@6.32.0:
-    resolution: {integrity: sha512-j3k+BjydAf8yQlcOI7WUQMQTbbF5GEIMAE2iZYCOzwwB3S2pCheaWYp+XZRNAch4jWVc52PMDGRRjutao3lLCg==}
+  openai@6.33.0:
+    resolution: {integrity: sha512-xAYN1W3YsDXJWA5F277135YfkEk6H7D3D6vWwRhJ3OEkzRgcyK8z/P5P9Gyi/wB4N8kK9kM5ZjprfvyHagKmpw==}
     hasBin: true
     peerDependencies:
       ws: ^8.18.0
@@ -4635,7 +4635,7 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
-  openai@6.32.0: {}
+  openai@6.33.0: {}
 
   p-limit@2.3.0:
     dependencies:
