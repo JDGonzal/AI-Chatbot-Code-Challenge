@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@pinecone-database/pinecone':
-        specifier: 7.1.0
-        version: 7.1.0
+        specifier: 7.2.0
+        version: 7.2.0
       axios:
         specifier: 1.15.0
         version: 1.15.0
@@ -766,8 +766,8 @@ packages:
   '@paralleldrive/cuid2@2.3.1':
     resolution: {integrity: sha512-XO7cAxhnTZl0Yggq6jOgjiOHhbgcO4NqFqwSmQpjK3b6TEE6Uj/jfSk6wzYyemh3+I0sHirKSetjQwn5cZktFw==}
 
-  '@pinecone-database/pinecone@7.1.0':
-    resolution: {integrity: sha512-w6HoBCriv4NKOVFjdj4/KuJ6df7RZpQEsZ61VctRzoauTXQpe8wpccsS94AawxAxMOu7hOTXVlcQ5QLHYKjrDA==}
+  '@pinecone-database/pinecone@7.2.0':
+    resolution: {integrity: sha512-urGsnNDWSSqSaWdyEF2P6V5bTNtRA6yMQTheFYAKKwk7mkloRBBETtT2ADF5Y8gJTr88pW5D8NTcCCLe+f0e2Q==}
     engines: {node: '>=20.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
@@ -3330,7 +3330,7 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.8.0
 
-  '@pinecone-database/pinecone@7.1.0': {}
+  '@pinecone-database/pinecone@7.2.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
