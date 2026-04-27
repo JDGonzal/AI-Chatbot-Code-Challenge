@@ -24,7 +24,7 @@
   "dependencies": {
     "@pinecone-database/pinecone": "7.2.0",
     "bcryptjs": "3.0.3",
-    "axios": "1.15.1",
+    "axios": "1.15.2",
     "cheerio": "1.2.0",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
